@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Localiza24h — Combos Interativos</title>
+
+  <style>
+    :root{
+      --bg:#070707;
+      --card:#0f0f0f;
+      --text:#f2f2f2;
+      --muted:#b9b9b9;
+      --red:#c40000;
+      --red2:#ff2a2a;
+      --stroke:rgba(255,255,255,.12);
+      --glow:rgba(196,0,0,.25);
+      --radius:18px;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background:
+        radial-gradient(1000px 600px at 20% 0%, rgba(196,0,0,.20), transparent 60%),
+        radial-gradient(900px 500px at 90% 20%, rgba(255,42,42,.10), transparent 55%),
+        linear-gradient(180deg, #050505, #0a0a0a 55%, #050505);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+    }
+
+    .wrap{
+      max-width:560px;
+      margin:0 auto;
+      padding:16px 14px 26px;
+    }
+
+    .topbar{
+      margin-top:6px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .dot{
+      width:10px;height:10px;border-radius:50%;
+      background:var(--red);
+      box-shadow:0 0 18px var(--glow);
+    }
+    .brand h1{
+      margin:0;
+      font-size:16px;
+      letter-spacing:.4px;
+      font-weight:900;
+    }
+    .handle{
+      font-size:12px;
+      color:var(--muted);
+      opacity:.9;
+    }
+
+    .hero{
+      text-align:center;
+      margin:14px 0 12px;
+      padding:14px 12px 10px;
+      border:1px solid var(--stroke);
+      border-radius:var(--radius);
+      background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      box-shadow:0 16px 40px rgba(0,0,0,.45);
+      backdrop-filter: blur(6px);
+    }
+
+    .hero .title{
+      margin:0 0 6px;
+      font-size:20px;
+      font-weight:1000;
+      letter-spacing:.2px;
+    }
+    .hero .sub{
+      margin:0;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.35;
+    }
+
+    .card{
+      position:relative;
+      border-radius:var(--radius);
+      overflow:hidden;
+      border:1px solid var(--stroke);
+      background:var(--card);
+      box-shadow:
+        0 18px 45px rgba(0,0,0,.55),
+        0 0 0 1px rgba(196,0,0,.10) inset;
+    }
+
+    .card img{
+      width:100%;
+      display:block;
+      transform: translateZ(0);
+    }
+
+    /* Grade 2x2 cobrindo os quadros (cliques) */
+    .grid{
+      position:absolute;
+      inset:0;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      grid-template-rows:1fr 1fr;
+    }
+    .hotspot{
+      cursor:pointer;
+      display:block;
+      position:relative;
+      outline:none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .hotspot:active{
+      box-shadow: inset 0 0 0 3px rgba(196,0,0,.75);
+      background: rgba(196,0,0,.06);
+    }
+
+    .panel{
+      margin-top:12px;
+      display:grid;
+      gap:10px;
+    }
+
+    .info{
+      padding:12px 12px;
+      border:1px solid var(--stroke);
+      border-radius:var(--radius);
+      background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      box-shadow:0 12px 30px rgba(0,0,0,.35);
+    }
+
+    .info .line{
+      font-size:13px;
+      line-height:1.45;
+      color:var(--muted);
+    }
+    .info b{color:var(--text)}
+
+    .counts{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+    .count{
+      padding:10px 12px;
+      border-radius:16px;
+      border:1px solid var(--stroke);
+      background:rgba(255,255,255,.03);
+      color:var(--muted);
+      font-size:12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .count span{
+      color:var(--text);
+      font-weight:900;
+    }
+
+    .cta{
+      display:block;
+      text-decoration:none;
+      text-align:center;
+      padding:14px 12px;
+      border-radius:16px;
+      background:linear-gradient(135deg, var(--red), var(--red2));
+      color:#fff;
+      font-weight:1000;
+      letter-spacing:.3px;
+      box-shadow:0 18px 40px rgba(196,0,0,.20);
+      border:1px solid rgba(255,255,255,.10);
+    }
+    .cta:active{transform: translateY(1px)}
+
+    .mini{
+      margin-top:10px;
+      font-size:11px;
+      color:rgba(255,255,255,.55);
+      text-align:center;
+      line-height:1.35;
+    }
+
+    /* Modal fullscreen do vídeo */
+    .modal{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.88);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:10px;
+      z-index:9999;
+      backdrop-filter: blur(6px);
+    }
+    .modal.open{display:flex}
+    .modal-box{
+      width:min(980px, 100%);
+      height:min(92vh, 720px);
+      background:#000;
+      border-radius:18px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.12);
+      box-shadow:0 30px 80px rgba(0,0,0,.7);
+      position:relative;
+    }
+    .modal-top{
+      position:absolute;
+      inset:0 0 auto 0;
+      height:46px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:10px 10px;
+      background:linear-gradient(180deg, rgba(0,0,0,.75), rgba(0,0,0,0));
+      z-index:2;
+      pointer-events:none;
+    }
+    .modal-title{
+      font-size:13px;
+      font-weight:900;
+      color:#fff;
+      opacity:.95;
+    }
+    .close{
+      pointer-events:auto;
+      appearance:none;
+      border:none;
+      background:rgba(255,255,255,.10);
+      color:#fff;
+      border-radius:12px;
+      padding:8px 10px;
+      font-weight:900;
+      cursor:pointer;
+    }
+    .close:active{transform:translateY(1px)}
+
+    iframe{
+      width:100%;
+      height:100%;
+      border:0;
+      display:block;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="dot"></div>
+        <div>
+          <h1>Localiza24h — Combos Interativos</h1>
+          <div class="handle">@localiza24h</div>
+        </div>
+      </div>
+      <div class="handle">Toque no quadro</div>
+    </div>
+
+    <div class="hero">
+      <p class="title">Escolha seu combo e veja o vídeo</p>
+      <p class="sub">Toque em cima do quadro do combo (Tipo 1 / TAG / Tipo 2 / Tipo 3) para assistir em tela cheia.</p>
+    </div>
+
+    <div class="card" aria-label="Imagem com áreas clicáveis">
+      <img
+        src="https://drive.google.com/uc?export=view&id=1TwThwXszHp5RQksg2iUdF5-9GrETF0Gu"
+        alt="Combos de Rastreamento + Antifurto"
+      />
+
+      <div class="grid">
+        <!-- Linha 1 (esq=Tipo 1 / dir=TAG) -->
+        <a class="hotspot" role="button" tabindex="0"
+           onclick="openVideo('tipo1')"
+           onkeydown="if(event.key==='Enter'||event.key===' '){openVideo('tipo1')}"
+           aria-label="Abrir vídeo do Combo Tipo 1"></a>
+
+        <a class="hotspot" role="button" tabindex="0"
+           onclick="openVideo('tag')"
+           onkeydown="if(event.key==='Enter'||event.key===' '){openVideo('tag')}"
+           aria-label="Abrir vídeo do Combo TAG"></a>
+
+        <!-- Linha 2 (esq=Tipo 2 / dir=Tipo 3) -->
+        <a class="hotspot" role="button" tabindex="0"
+           onclick="openVideo('tipo2')"
+           onkeydown="if(event.key==='Enter'||event.key===' '){openVideo('tipo2')}"
+           aria-label="Abrir vídeo do Combo Tipo 2"></a>
+
+        <a class="hotspot" role="button" tabindex="0"
+           onclick="openVideo('tipo3')"
+           onkeydown="if(event.key==='Enter'||event.key===' '){openVideo('tipo3')}"
+           aria-label="Abrir vídeo do Combo Tipo 3"></a>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="info">
+        <div class="line">✅ Valores referentes à <b>instalação</b></div>
+        <div class="line">✅ Mensalidade a partir de <b>R$ 54,90/mês</b></div>
+        <div class="line">📍 Atendimento em <b>Belém</b></div>
+        <div class="line">📞 Urgência (furto/roubo/veículo parado): <b>(91) 98043-1712</b></div>
+      </div>
+
+      <div class="counts">
+        <div class="count">Cliques Tipo 1 <span id="c_tipo1">0</span></div>
+        <div class="count">Cliques TAG <span id="c_tag">0</span></div>
+        <div class="count">Cliques Tipo 2 <span id="c_tipo2">0</span></div>
+        <div class="count">Cliques Tipo 3 <span id="c_tipo3">0</span></div>
+      </div>
+
+      <!-- CTA que identifica PLANO + ORIGEM -->
+      <a class="cta" id="ctaWhats" target="_blank" href="#">
+        Quero contratar no WhatsApp
+      </a>
+
+      <div class="mini">
+        Contador de cliques: salvo no aparelho do usuário (teste/validação).<br/>
+        A mensagem do WhatsApp identifica o plano escolhido e que veio do folder de combos.
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL FULLSCREEN -->
+  <div class="modal" id="modal" onclick="closeIfBackdrop(event)">
+    <div class="modal-box" role="dialog" aria-modal="true" aria-label="Vídeo em tela cheia">
+      <div class="modal-top">
+        <div class="modal-title" id="modalTitle">Vídeo</div>
+        <button class="close" onclick="closeModal()" aria-label="Fechar vídeo">Fechar ✕</button>
+      </div>
+      <iframe id="player" src="" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+    </div>
+  </div>
+
+  <script>
+    // Vídeos e rótulos (para identificar o plano no WhatsApp)
+    const VIDEOS = {
+      tipo1: {
+        id: "1UH7TgoBhyw8Li2FKVmSIn4CQ4_F3hfGz",
+        title: "Combo Tipo 1 — Demonstração",
+        label: "Rastreamento + Antifurto Tipo 1 (R$ 99,99)"
+      },
+      tag: {
+        id: "13CVCJD6pEXows_ihhxVQYmvZDAiIse9c",
+        title: "Combo TAG — Demonstração",
+        label: "Rastreamento + Antifurto TAG (R$ 170,00)"
+      },
+      tipo2: {
+        id: "11Ig__HEdC076rPJpApe8MDNn7DSG2f7u",
+        title: "Combo Tipo 2 — Demonstração",
+        label: "Rastreamento + Antifurto Tipo 2 (R$ 310,00)"
+      },
+      tipo3: {
+        id: "1RMLF6otMIdC5yKF9gbzsrgAG01e6IAbp",
+        title: "Combo Tipo 3 — Demonstração",
+        label: "Rastreamento + Antifurto Tipo 3 (R$ 470,00)"
+      }
+    };
+
+    // Contadores (local no aparelho)
+    const KEY = "lz24h_clicks_v2";
+    const counters = JSON.parse(localStorage.getItem(KEY) || '{"tipo1":0,"tag":0,"tipo2":0,"tipo3":0}');
+    const LAST_KEY = "lz24h_last_combo";
+
+    // WhatsApp + origem
+    const phone = "5591980431712";
+    const origin = "Vim do folder de combos (QR Code).";
+
+    function renderCounts(){
+      document.getElementById("c_tipo1").textContent = counters.tipo1 || 0;
+      document.getElementById("c_tag").textContent   = counters.tag   || 0;
+      document.getElementById("c_tipo2").textContent = counters.tipo2 || 0;
+      document.getElementById("c_tipo3").textContent = counters.tipo3 || 0;
+    }
+
+    function bump(key){
+      counters[key] = (counters[key] || 0) + 1;
+      localStorage.setItem(KEY, JSON.stringify(counters));
+      renderCounts();
+    }
+
+    function updateCTA(which){
+      const cta = document.getElementById("ctaWhats");
+      if(!cta) return;
+
+      if(!which || !VIDEOS[which]){
+        const msg = `Oi! ${origin}\nQuero contratar rastreamento + antifurto. Pode me orientar?`;
+        cta.href = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+        return;
+      }
+
+      const chosen = VIDEOS[which].label;
+      const msg =
+`Oi! ${origin}
+Tenho interesse no plano: ${chosen}.
+Pode me passar os próximos passos para instalar?`;
+
+      cta.href = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+    }
+
+    function setLastCombo(which){
+      localStorage.setItem(LAST_KEY, which);
+      updateCTA(which);
+    }
+
+    // Modal (tela cheia)
+    function openVideo(which){
+      const v = VIDEOS[which];
+      if(!v) return;
+
+      bump(which);
+      setLastCombo(which);
+
+      // Preview do Drive (abre dentro do iframe)
+      const src = `https://drive.google.com/file/d/${v.id}/preview`;
+
+      document.getElementById("modalTitle").textContent = v.title;
+      document.getElementById("player").src = src;
+      document.getElementById("modal").classList.add("open");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeModal(){
+      document.getElementById("modal").classList.remove("open");
+      document.getElementById("player").src = "";
+      document.body.style.overflow = "";
+    }
+
+    function closeIfBackdrop(e){
+      if(e.target.id === "modal") closeModal();
+    }
+
+    // ESC fecha
+    document.addEventListener("keydown", (e) => {
+      if(e.key === "Escape") closeModal();
+    });
+
+    // Inicialização
+    renderCounts();
+    updateCTA(localStorage.getItem(LAST_KEY));
+  </script>
+</body>
+</html>
